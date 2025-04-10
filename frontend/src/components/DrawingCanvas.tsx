@@ -48,11 +48,28 @@ const DrawingCanvas: React.FC = () => {
     };
   }, []);
 
-  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!canvasRef.current) return;
+  const getCoordinates = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return { x: 0, y: 0 };
+    
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    let x: number, y: number;
+
+    if ('touches' in e) {
+      // Touch event
+      x = e.touches[0].clientX - rect.left;
+      y = e.touches[0].clientY - rect.top;
+    } else {
+      // Mouse event
+      x = e.clientX - rect.left;
+      y = e.clientY - rect.top;
+    }
+
+    return { x, y };
+  };
+
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    if (!canvasRef.current) return;
+    const { x, y } = getCoordinates(e);
     
     setIsPainting(true);
     currentStrokeRef.current = [{ x, y }];
@@ -78,12 +95,10 @@ const DrawingCanvas: React.FC = () => {
     }
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     if (!isPainting || !canvasRef.current || !ctxRef.current) return;
     
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const { x, y } = getCoordinates(e);
 
     if (isErasing) {
       // Check for strokes to erase while dragging
@@ -295,6 +310,10 @@ const DrawingCanvas: React.FC = () => {
         onMouseMove={draw}
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
+        onTouchStart={startDrawing}
+        onTouchMove={draw}
+        onTouchEnd={stopDrawing}
+        style={{ touchAction: 'none' }} // Prevent scrolling while drawing
       />
       <div className="toolbar">
         <button onClick={handleClear}>Clear</button>

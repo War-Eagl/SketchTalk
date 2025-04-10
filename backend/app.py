@@ -47,4 +47,5 @@ def save_drawing():
         }), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Run on all network interfaces
+    app.run(host='0.0.0.0', port=5000, debug=True)
