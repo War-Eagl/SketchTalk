@@ -1,97 +1,115 @@
-# TalkSketch
+# TalkSketch React
 
-A web-based drawing and sketching application where users can draw strokes, erase parts of the strokes, and save the artwork locally or to a server. The strokes are smoothed using Chaikin’s Algorithm and can be saved as an SVG file.
+A React-based drawing application with p5.js integration for smooth drawing and erasing functionality.
 
 ## Features
-- **Draw Mode**: Use the mouse to draw continuous strokes.
-- **Erase Mode**: Erase entire strokes by clicking and dragging.
-- **Undo and Redo**: Undo and redo drawing actions.
-- **Save Locally**: Save the drawing as an SVG file to the local machine.
-- **Save to Server**: Send the drawing to a server (Flask backend) to be stored as an SVG file.
-- **Responsive Canvas**: The canvas adjusts to the full size of the browser window.
 
-## Folder Structure
+- Drawing on a full-screen canvas with smooth strokes
+- Erase mode that removes strokes by intersecting with them
+- Undo/Redo functionality for both drawing and erasing
+- Save drawings locally as SVG files
+- Save drawings to server with unique timestamps
+- Responsive design that adapts to window size
+
+## Prerequisites
+
+- Node.js (v14 or higher)
+- npm (v6 or higher)
+- Python 3.x
+- Flask (Python web framework)
+
+## Project Structure
+
 ```
-TalkSketch/
-├── static/
-│   ├── sketch.js        # JavaScript file that handles drawing logic, interactions, and saving
-│   ├── style.css        # CSS file for styling the canvas and toolbar
-├── templates/
-│   └── index.html       # HTML file for the front-end structure of the app
-└── app.py               # Flask backend to handle server-side logic for saving the SVG
+talksketch/
+├── app.py                 # Flask backend server
+├── saved_drawings/        # Directory for saved SVG files
+└── talksketch-react/      # React frontend
+    ├── src/
+    │   ├── components/
+    │   │   └── DrawingCanvas.tsx  # Main drawing component
+    │   ├── App.tsx
+    │   └── ...
+    └── ...
 ```
 
-## Files Overview
+## Setup
 
-### 1. **index.html** (in `templates/`)
-- **Purpose**: The HTML structure of the app.
-- **Components**: 
-  - Drawing canvas for the user to sketch on.
-  - Toolbar with buttons for drawing, erasing, undo, redo, saving locally, and saving to the server.
-  
-### 2. **sketch.js** (in `static/`)
-- **Purpose**: Contains all the JavaScript logic for:
-  - Drawing on the canvas.
-  - Erasing strokes.
-  - Implementing undo and redo functionality.
-  - Saving the artwork as SVG and sending it to the server.
-- **Key Functions**:
-  - `draw()`: Handles the drawing and erasing of strokes.
-  - `chaikinCurve()`: Applies Chaikin's Algorithm to smooth the strokes into Bezier curves.
-  - `saveAsSVG()`: Converts the strokes to SVG format and saves locally.
-  - `saveToServer()`: Sends the SVG data to the Flask server for storage.
+### Backend Setup
 
-### 3. **style.css** (in `static/`)
-- **Purpose**: Contains the styles for the canvas and toolbar, ensuring the app looks good and is responsive.
-- **Components**:
-  - Styles for the toolbar buttons.
-  - Styles for the canvas to make it full screen and responsive.
-
-### 4. **app.py** (Flask Backend)
-- **Purpose**: The backend server to handle saving the SVG file sent from the frontend.
-- **Routes**:
-  - `/save_svg`: Receives the SVG data from the front-end and saves it to the server.
-  - Provides a basic Flask setup for server-side communication.
-
----
-
-## Quick Start
-
-### 1. **Clone the repository**:
-Clone this project to your local machine.
-
-```bash
-git clone <repository-url>
-cd Sketching-App
-```
-### 2. **Set up the environment**:
-Make sure you have Python 3 installed. Then, install the necessary dependencies:
-
+1. Install Python dependencies:
 ```bash
 pip install flask
 ```
-### 3. **Run the Flask Server**:
-Start the Flask development server by running the following command:
 
+2. Start the Flask server:
 ```bash
 python app.py
 ```
-This will start the server at http://127.0.0.1:5000.
+The server will run on `http://localhost:5000`
 
-### 4. **Access the App**:
-Open your browser and go to http://127.0.0.1:5000/.
+### Frontend Setup
 
-The app will load, allowing you to start drawing.
+1. Navigate to the React project directory:
+```bash
+cd talksketch-react
+```
 
-### 5. **Use the App**:
-- **Draw**: Click and drag the mouse to draw.
+2. Install dependencies:
+```bash
+npm install
+```
 
-- **Erase**: Click on the "Erase" button in the toolbar to toggle erase mode. Click and drag to erase strokes.
+3. Start the development server:
+```bash
+npm start
+```
+The app will be available at `http://localhost:3000`
 
-- **Undo**: Click the "Undo" button or press CTRL+Z to undo the last action.
+## Usage
 
-- **Redo**: Click the "Redo" button or press CTRL+Y to redo the last undone action.
+### Drawing
+- Click and drag to draw
+- The canvas automatically resizes with the window
+- Strokes are smoothed for better drawing experience
 
-- **Save Locally**: Click the "Save Locally" button to download your drawing as an SVG file.
+### Erasing
+- Click the "Erase" button to toggle erase mode
+- In erase mode, any stroke that intersects with your mouse cursor will be erased
+- Click or drag to erase strokes
+- Toggle back to "Draw" mode to continue drawing
 
-- **Save to Server**: Click the "Save to Server" button to upload the drawing to the server for storage.
+### Saving
+- "Save Locally" - Downloads the drawing as an SVG file
+- "Save to Server" - Saves the drawing to the server with a timestamp
+- Saved files are stored in the `saved_drawings` directory
+
+### Undo/Redo
+- Use the "Undo" button to remove the last stroke
+- Use the "Redo" button to restore the last undone stroke
+- Works for both drawing and erasing actions
+
+## Development
+
+- The main drawing component is located in `src/components/DrawingCanvas.tsx`
+- Styles are split between `src/components/DrawingCanvas.css` and `src/App.css`
+- The application uses TypeScript for type safety
+- The backend uses Flask for handling file saves
+
+## Building for Production
+
+To create a production build of the frontend:
+
+```bash
+cd talksketch-react
+npm run build
+```
+
+The build files will be created in the `build` directory.
+
+## Troubleshooting
+
+- If the server save fails, ensure both the Flask server and React app are running
+- Check the browser console for any error messages
+- Make sure the `saved_drawings` directory exists and has write permissions
+- If you encounter CORS issues, ensure you're running both servers on the correct ports
