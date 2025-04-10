@@ -1,20 +1,14 @@
 #!/bin/bash
 
-# Start the backend server
+# Start the Flask server (serves both frontend and backend)
 cd backend
 python app.py &
-BACKEND_PID=$!
-
-# Start the frontend server
-cd ../frontend
-npm start &
-FRONTEND_PID=$!
+SERVER_PID=$!
 
 echo "Starting TalkSketch..."
-echo "Backend server will be available at http://localhost:5000"
-echo "Frontend will be available at http://localhost:3000"
-echo "Press Ctrl+C to stop both servers"
+echo "Application will be available at http://localhost:5000"
+echo "Press Ctrl+C to stop the server"
 
 # Wait for Ctrl+C
-trap "kill $BACKEND_PID $FRONTEND_PID" EXIT
+trap "kill $SERVER_PID" EXIT
 wait 

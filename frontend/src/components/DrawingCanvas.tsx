@@ -193,13 +193,12 @@ const DrawingCanvas: React.FC = () => {
   const handleSaveServer = async () => {
     try {
       const svgContent = generateSVG();
-      const response = await axios.post('http://localhost:5000/save-drawing', 
+      const response = await axios.post('/save-drawing', 
         { svg: svgContent },
         {
           headers: {
             'Content-Type': 'application/json',
-          },
-          withCredentials: false
+          }
         }
       );
       
@@ -212,14 +211,10 @@ const DrawingCanvas: React.FC = () => {
       console.error('Error saving to server:', error);
       if (axios.isAxiosError(error)) {
         if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
           alert(`Server error: ${error.response.data.error || error.response.statusText}`);
         } else if (error.request) {
-          // The request was made but no response was received
-          alert('No response from server. Make sure the server is running and accessible.');
+          alert('No response from server. Make sure the server is running.');
         } else {
-          // Something happened in setting up the request that triggered an Error
           alert(`Error: ${error.message}`);
         }
       } else {

@@ -1,37 +1,50 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, send_from_directory
 import os
-from datetime import datetime
+import time
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/build', static_url_path='')
 
-# Create a directory for saved drawings if it doesn't exist
-SAVED_DRAWINGS_DIR = 'saved_drawings'
-if not os.path.exists(SAVED_DRAWINGS_DIR):
-    os.makedirs(SAVED_DRAWINGS_DIR)
+# Serve React App
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
+# API endpoint to save drawings
 @app.route('/save-drawing', methods=['POST'])
 def save_drawing():
     try:
-        data = request.get_json()
-        svg_content = data.get('svg')
+        data = request.json
+        svg_content = data.get('svg', '')
         
-        if svg_content:
-            # Generate a unique filename using timestamp
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f'drawing_{timestamp}.svg'
-            filepath = os.path.join(SAVED_DRAWINGS_DIR, filename)
-            
-            with open(filepath, 'w') as f:
-                f.write(svg_content)
-            return jsonify({'success': True, 'filename': filename})
+        if not svg_content:
+            return jsonify({'success': False, 'error': 'No SVG content provided'}), 400
         
-        return jsonify({'success': False, 'error': 'No SVG content provided'}), 400
+        # Create saved_drawings directory if it doesn't exist
+        if not os.path.exists('saved_drawings'):
+            os.makedirs('saved_drawings')
+        
+        # Generate filename with timestamp
+        timestamp = time.strftime('%Y%m%d-%H%M%S')
+        filename = f'saved_drawings/drawing-{timestamp}.svg'
+        
+        # Save the SVG file
+        with open(filename, 'w') as f:
+            f.write(svg_content)
+        
+        return jsonify({
+            'success': True,
+            'filename': filename
+        })
+    
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
