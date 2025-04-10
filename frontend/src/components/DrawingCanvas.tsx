@@ -124,9 +124,12 @@ const DrawingCanvas: React.FC = () => {
     
     if (!isErasing && currentStrokeRef.current.length > 1) {
       const newStroke = { points: [...currentStrokeRef.current], isErased: false };
-      setStrokes(prev => [...prev, newStroke]);
-      setUndoStack(prev => [...prev, newStroke]);
-      setRedoStack([]);
+      setStrokes(prev => {
+        const newStrokes = [...prev, newStroke];
+        setUndoStack(newStrokes);
+        setRedoStack([]);
+        return newStrokes;
+      });
     }
     
     setIsPainting(false);
@@ -160,23 +163,67 @@ const DrawingCanvas: React.FC = () => {
   };
 
   const handleUndo = () => {
-    if (strokes.length > 0) {
-      const lastStroke = strokes[strokes.length - 1];
-      setStrokes(prev => prev.slice(0, -1));
-      setUndoStack(prev => [...prev, lastStroke]);
-      setRedoStack(prev => [...prev, lastStroke]);
-      redrawCanvas();
-    }
+    setStrokes(prev => {
+      if (prev.length === 0) return prev;
+      
+      const newStrokes = prev.slice(0, -1);
+      const undoneStroke = prev[prev.length - 1];
+      
+      setUndoStack(newStrokes);
+      setRedoStack(prevRedo => [...prevRedo, undoneStroke]);
+      
+      if (canvasRef.current && ctxRef.current) {
+        const ctx = ctxRef.current;
+        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+        
+        newStrokes.forEach(stroke => {
+          if (!stroke.isErased && stroke.points.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+            for (let i = 1; i < stroke.points.length; i++) {
+              ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+            }
+            ctx.stroke();
+          }
+        });
+      }
+      
+      return newStrokes;
+    });
   };
 
   const handleRedo = () => {
-    if (redoStack.length > 0) {
-      const lastUndone = redoStack[redoStack.length - 1];
-      setStrokes(prev => [...prev, lastUndone]);
-      setUndoStack(prev => [...prev, lastUndone]);
-      setRedoStack(prev => prev.slice(0, -1));
-      redrawCanvas();
-    }
+    setRedoStack(prev => {
+      if (prev.length === 0) return prev;
+      
+      const nextStroke = prev[prev.length - 1];
+      const newRedoStack = prev.slice(0, -1);
+      
+      setStrokes(current => {
+        const newStrokes = [...current, nextStroke];
+        setUndoStack(newStrokes);
+        
+        if (canvasRef.current && ctxRef.current) {
+          const ctx = ctxRef.current;
+          ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+          
+          newStrokes.forEach(stroke => {
+            if (!stroke.isErased && stroke.points.length > 1) {
+              ctx.beginPath();
+              ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+              for (let i = 1; i < stroke.points.length; i++) {
+                ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+              }
+              ctx.stroke();
+            }
+          });
+        }
+        
+        return newStrokes;
+      });
+      
+      return newRedoStack;
+    });
   };
 
   const handleSaveLocal = () => {
