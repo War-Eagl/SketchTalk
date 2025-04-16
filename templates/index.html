@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkSketch - Exploring AI-Enhanced Sketching</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="landing-container">
+        <h1 class="landing-title">TalkSketch</h1>
+        <p>Exploring how sketching and speech can be used by AI models to improve the sketching experience</p>
+        
+        <div class="experiment-description">
+            <h2>About the Experiment</h2>
+            <p>This experiment explores three different conditions for sketching:</p>
+            <ul>
+                <li><strong>Baseline Sketching:</strong> Use your own sketching skills without assistance</li>
+                <li><strong>AI-Inspired Sketching:</strong> Get inspiration from AI-generated images</li>
+                <li><strong>Voice-Assisted AI Sketching:</strong> Speak while drawing to get AI suggestions</li>
+            </ul>
+        </div>
+        
+        <div class="condition-links">
+            <a href="/condition1" class="condition-button">Condition 1: Baseline</a>
+            <a href="/condition2" class="condition-button">Condition 2: AI-Inspired</a>
+            <a href="/condition3" class="condition-button">Condition 3: Voice-Assisted</a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TalkSketch - AI-Inspired Sketching</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- SVG.js for drawing -->
+    <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0.16/dist/svg.min.js"></script>
+    <!-- Feather icons -->
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Toolbar (left sidebar) -->
+        <div class="left-sidebar">
+            <button id="clear-button" class="tool-button" title="Clear Canvas">
+                <i data-feather="trash-2"></i>
+            </button>
+            <button id="eraser-button" class="tool-button" title="Eraser">
+                <i data-feather="delete"></i>
+            </button>
+            <button id="undo-button" class="tool-button" title="Undo">
+                <i data-feather="corner-up-left"></i>
+            </button>
+            <button id="redo-button" class="tool-button" title="Redo">
+                <i data-feather="corner-up-right"></i>
+            </button>
+            <button id="save-local-button" class="tool-button" title="Save Locally">
+                <i data-feather="download"></i>
+            </button>
+            <button id="save-server-button" class="tool-button" title="Save to Server">
+                <i data-feather="save"></i>
+            </button>
+        </div>
+
+        <!-- Drawing area (main content) -->
+        <div class="drawing-area">
+            <div id="canvas-container"></div>
+        </div>
+
+        <!-- Gallery and AI generation (right sidebar) -->
+        <div class="right-sidebar">
+            <div class="gallery-section">
+                <h3 class="section-title">Your Sketches</h3>
+                <div id="gallery-container" class="gallery"></div>
+            </div>
+            
+            <div class="ai-generation">
+                <h3 class="section-title">AI Image Generation</h3>
+                <div id="ai-image-container" class="ai-image-container">
+                    <div class="gallery-placeholder">AI image will appear here</div>
+                </div>
+                <input type="text" id="ai-prompt-input" class="prompt-input" placeholder="Enter prompt for AI...">
+                <button id="ai-generate-button" class="ai-help-button">Generate Image</button>
+            </div>
+            
+            <div class="session-controls">
+                <button id="end-session-button" class="end-session-button">End Session</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Status indicator -->
+    <div id="status-message" class="status-indicator"></div>
+    
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/drawing.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/session.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/condition2.js') }}"></script>
+    <script>
+        // Initialize Feather icons
+        document.addEventListener('DOMContentLoaded', () => {
+            feather.replace();
+        });
+    </script>
+</body>
+</html>
