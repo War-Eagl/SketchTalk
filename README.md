@@ -49,6 +49,14 @@ pip install .
 flask run
 ```
 
+5. Access from iPad:
+   - Install ngrok from https://ngrok.com/download
+   - Run ngrok with your domain:
+   ```bash
+   ngrok http --url=advanced-pegasus-blatantly.ngrok-free.app 5000
+   ```
+   - Open the ngrok URL on your iPad to access the application
+
 4. Open your browser and navigate to `http://localhost:5000`
 
 ## Project Structure

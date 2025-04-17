@@ -209,6 +209,8 @@ class DrawingTool {
       if (this.eraseMode) {
         // Handle eraser functionality
         this._eraseStrokes();
+        // Force immediate SVG update
+        this.draw.update();
       } else {
         // Convert path to bezier curves
         const bezierPath = this._convertToBezier(this.currentPath);
@@ -224,10 +226,16 @@ class DrawingTool {
         });
         
         this.redoStack = []; // Clear redo stack when new action is performed
+        
+        // Force immediate SVG update
+        this.draw.update();
       }
     } else {
       // Remove single point strokes
-      this.currentStroke.remove();
+      if (this.currentStroke) {
+        this.currentStroke.remove();
+        this.draw.update();
+      }
     }
     
     this.currentStroke = null;
@@ -300,6 +308,9 @@ class DrawingTool {
     const eraserBox = this._getBoundingBox(this.currentPath);
     
     // Find strokes that intersect with the eraser
+    const strokesToRemove = [];
+    
+    // First, collect all strokes to remove
     for (let i = this.strokes.length - 1; i >= 0; i--) {
       const stroke = this.strokes[i];
       const strokeBox = stroke.bbox();
@@ -311,21 +322,30 @@ class DrawingTool {
         width: strokeBox.width,
         height: strokeBox.height
       })) {
-        // Save to undo stack and remove the stroke
-        this.undoStack.push({
-          type: 'erase',
-          stroke: stroke.clone(),
+        strokesToRemove.push({
+          stroke: stroke,
           index: i
         });
-        
-        stroke.remove();
-        this.strokes.splice(i, 1);
       }
     }
+    
+    // Then remove them in a single batch
+    strokesToRemove.forEach(item => {
+      this.undoStack.push({
+        type: 'erase',
+        stroke: item.stroke.clone(),
+        index: item.index
+      });
+      item.stroke.remove();
+      this.strokes.splice(item.index, 1);
+    });
     
     // Remove the eraser stroke itself
     this.currentStroke.remove();
     this.redoStack = []; // Clear redo stack when new action is performed
+    
+    // Force immediate SVG update
+    this.draw.update();
   }
   
   /**
@@ -373,12 +393,16 @@ class DrawingTool {
       });
       
       // Remove all strokes
-      for (const stroke of this.strokes) {
+      this.strokes.forEach(stroke => {
         stroke.remove();
-      }
+      });
       
+      // Clear stroke array
       this.strokes = [];
       this.redoStack = []; // Clear redo stack when new action is performed
+      
+      // Force immediate SVG update
+      this.draw.update();
     }
   }
   
@@ -412,16 +436,19 @@ class DrawingTool {
       });
       
       // Remove any existing strokes
-      for (const stroke of this.strokes) {
+      this.strokes.forEach(stroke => {
         stroke.remove();
-      }
+      });
       
       // Restore strokes from the undo action
       this.strokes = [];
-      for (const storedStroke of action.strokes) {
+      action.strokes.forEach(storedStroke => {
         const restoredStroke = storedStroke.addTo(this.draw);
         this.strokes.push(restoredStroke);
-      }
+      });
+      
+      // Force immediate SVG update
+      this.draw.update();
     } else if (action.type === 'erase') {
       // Restore erased stroke
       const restoredStroke = action.stroke.addTo(this.draw);
@@ -432,6 +459,9 @@ class DrawingTool {
         stroke: restoredStroke,
         index: action.index
       });
+      
+      // Force immediate SVG update
+      this.draw.update();
     } else if (action.type === 'draw') {
       // Remove the drawn stroke
       const stroke = this.strokes.pop();
@@ -440,6 +470,9 @@ class DrawingTool {
         stroke: stroke.clone()
       });
       stroke.remove();
+      
+      // Force immediate SVG update
+      this.draw.update();
     }
   }
   
