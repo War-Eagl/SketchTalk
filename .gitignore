@@ -41,8 +41,8 @@ Thumbs.db
 instance/
 
 # Uploads
-static/uploads/*
-!static/uploads/.gitkeep
+uploads/*
+!uploads/.gitkeep
 
 # Environment variables
 .env
