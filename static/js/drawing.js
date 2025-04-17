@@ -178,7 +178,7 @@ class DrawingTool {
     
     // Create new path element for current stroke
     this.currentStroke = this.draw.path().stroke({
-      color: '#4d90fe',
+      color: '#000000', // Black color
       width: 3,
       linecap: 'round',
       linejoin: 'round'

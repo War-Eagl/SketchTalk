@@ -104,6 +104,7 @@ button:disabled {
   flex-direction: column;
   align-items: center;
   padding: 15px 0;
+  order: 0; /* Ensure it's on the left */
 }
 
 .tool-button {
@@ -140,6 +141,7 @@ button:disabled {
   position: relative;
   background-color: white;
   overflow: hidden;
+  order: 1; /* Middle position */
 }
 
 #canvas-container {
@@ -163,6 +165,9 @@ button:disabled {
   padding: 20px;
   border-left: 1px solid var(--border-color);
   overflow-y: auto;
+  order: 2; /* Ensure it's on the right */
+  display: flex;
+  flex-direction: column;
 }
 
 .section-title {
@@ -266,6 +271,9 @@ button:disabled {
   margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid var(--border-color);
+  position: sticky;
+  bottom: 0;
+  background-color: var(--secondary-color);
 }
 
 .end-session-button {
