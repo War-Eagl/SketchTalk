@@ -9,11 +9,90 @@
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0.16/dist/svg.min.js"></script>
     <!-- Feather icons -->
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        /* Overriding styles for the layout */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        
+        .toolbar {
+            display: flex;
+            justify-content: center;
+            background-color: #333;
+            padding: 10px 0;
+        }
+        
+        .tool-button {
+            width: 50px;
+            height: 50px;
+            margin: 0 10px;
+            background-color: transparent;
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .tool-button:hover, .tool-button.active {
+            background-color: var(--primary-color);
+        }
+        
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .drawing-area {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gallery-area {
+            height: 250px;
+            background-color: var(--secondary-color);
+            border-top: 1px solid var(--border-color);
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .gallery {
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            height: 140px;
+        }
+        
+        .gallery-item {
+            width: 140px;
+            height: 140px;
+            flex-shrink: 0;
+        }
+        
+        .section-title {
+            margin-bottom: 15px;
+        }
+        
+        .session-controls {
+            position: sticky;
+            bottom: 0;
+            padding-top: 15px;
+            background-color: var(--secondary-color);
+        }
+    </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Toolbar (left sidebar) -->
-        <div class="left-sidebar">
+        <!-- Toolbar at the top -->
+        <div class="toolbar">
             <button id="clear-button" class="tool-button" title="Clear Canvas">
                 <i data-feather="trash-2"></i>
             </button>
@@ -34,20 +113,20 @@
             </button>
         </div>
 
-        <!-- Drawing area (main content) -->
-        <div class="drawing-area">
-            <div id="canvas-container"></div>
-        </div>
+        <div class="content-area">
+            <!-- Drawing area (main content) -->
+            <div class="drawing-area">
+                <div id="canvas-container"></div>
+            </div>
 
-        <!-- Gallery (right sidebar) -->
-        <div class="right-sidebar">
-            <div class="gallery-section">
+            <!-- Gallery area (at the bottom) -->
+            <div class="gallery-area">
                 <h3 class="section-title">Your Sketches</h3>
                 <div id="gallery-container" class="gallery"></div>
-            </div>
-            
-            <div class="session-controls">
-                <button id="end-session-button" class="end-session-button">End Session</button>
+                
+                <div class="session-controls">
+                    <button id="end-session-button" class="end-session-button">End Session</button>
+                </div>
             </div>
         </div>
     </div>
