@@ -86,12 +86,21 @@ class SketchGallery {
 
       // Create a new SVG element
       const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      // Get placeholder and SVG dimensions
+      const placeholderRect = targetItem.getBoundingClientRect();
+      const svgWidth = parseFloat(originalSvg.getAttribute('width')) || viewBoxWidth;
+      const svgHeight = parseFloat(originalSvg.getAttribute('height')) || viewBoxHeight;
+      
+      // Calculate scaling factors
+      const scaleX = placeholderRect.width / svgWidth;
+      const scaleY = placeholderRect.height / svgHeight;
+      const scale = Math.min(scaleX, scaleY) * 0.9; // 90% of available space
+      
+      // Apply viewBox and scaling
       newSvg.setAttribute('viewBox', viewBox);
       newSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      
-      // Set dimensions to fill the container while maintaining aspect ratio
-      newSvg.style.width = '80%'; // Increased from 20%
-      newSvg.style.height = '80%';
+      newSvg.style.width = `${svgWidth * scale}px`;
+      newSvg.style.height = `${svgHeight * scale}px`;
       
       // Center the SVG in the container
       wrapper.style.display = 'flex';
