@@ -20,6 +20,10 @@ body {
   line-height: 1.6;
   color: var(--text-color);
   background-color: #f5f5f5;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+  width: 100vw;
+  height: 100vh;
 }
 
 .container {
@@ -141,6 +145,13 @@ button:disabled {
   flex: 1;
   position: relative;
   background-color: white;
+
+
+  width: 100%;
+  height: 100%;
+  -ms-touch-action: none;
+  touch-action: none;
+
   overflow: hidden;
   order: 1; /* Middle position */
 }
@@ -306,6 +317,17 @@ button:disabled {
 }
 
 /* Responsive adjustments */
+
+@media (min-width: 768px) and (max-width: 1024px) {
+  body {
+    -ms-touch-action: none;
+    touch-action: none;
+    width: 100%;
+    height: 100%;
+  }
+
+}
+
 @media (max-width: 768px) {
   .app-container {
     flex-direction: column;
