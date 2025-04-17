@@ -49,38 +49,69 @@ class SketchGallery {
     // Clear the placeholder
     targetItem.innerHTML = '';
     
-    // Create a simple approach - just inject the svg and scale with CSS
-    targetItem.insertAdjacentHTML('beforeend', svgData);
+    // Create a wrapper div for proper scaling
+    const wrapper = document.createElement('div');
+    wrapper.style.width = '100%';
+    wrapper.style.height = '100%';
+    wrapper.style.display = 'flex';
+    wrapper.style.alignItems = 'center';
+    wrapper.style.justifyContent = 'center';
+    targetItem.appendChild(wrapper);
     
-    // Directly apply inline styles to the SVG to ensure proper scaling
-    const svg = targetItem.querySelector('svg');
-    if (svg) {
-      // Ensure viewBox is set
-      if (!svg.hasAttribute('viewBox')) {
-        const width = parseFloat(svg.getAttribute('width')) || 800;
-        const height = parseFloat(svg.getAttribute('height')) || 600;
-        svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+    // Parse the SVG to properly scale it
+    try {
+      // Parse the SVG data
+      const parser = new DOMParser();
+      const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
+      const originalSvg = svgDoc.documentElement;
+      
+      // Get the viewBox dimensions or default to width and height
+      let viewBox = originalSvg.getAttribute('viewBox');
+      let viewBoxWidth, viewBoxHeight;
+      
+      if (viewBox) {
+        const parts = viewBox.split(' ');
+        viewBoxWidth = parseFloat(parts[2]);
+        viewBoxHeight = parseFloat(parts[3]);
+      } else {
+        viewBoxWidth = parseFloat(originalSvg.getAttribute('width')) || 800;
+        viewBoxHeight = parseFloat(originalSvg.getAttribute('height')) || 600;
+        viewBox = `0 0 ${viewBoxWidth} ${viewBoxHeight}`;
       }
       
-      // Set critical scaling attributes directly
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '100%');
+      // Create a new SVG element
+      const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      newSvg.setAttribute('viewBox', viewBox);
+      newSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       
-      // Force proper scaling with CSS
-      svg.style.position = 'absolute';
-      svg.style.top = '0';
-      svg.style.left = '0';
-      svg.style.width = '100%';
-      svg.style.height = '100%';
-      svg.style.maxWidth = '100%';
-      svg.style.maxHeight = '100%';
+      // Set dimensions to make it fit within the container while maintaining aspect ratio
+      const targetAspectRatio = viewBoxWidth / viewBoxHeight;
       
-      // Make sure all paths are visible
-      const paths = svg.querySelectorAll('path');
+      if (targetAspectRatio > 1) {
+        // Wider than tall
+        newSvg.style.width = '90%';
+        newSvg.style.height = 'auto';
+      } else {
+        // Taller than wide or square
+        newSvg.style.height = '90%';
+        newSvg.style.width = 'auto';
+      }
+      
+      // Copy the inner content from the original SVG
+      newSvg.innerHTML = originalSvg.innerHTML;
+      
+      // Add the new SVG to the wrapper
+      wrapper.appendChild(newSvg);
+      
+      // Make sure all paths use non-scaling-stroke
+      const paths = newSvg.querySelectorAll('path');
       paths.forEach(path => {
         path.setAttribute('vector-effect', 'non-scaling-stroke');
       });
+    } catch (e) {
+      // Fallback to simple SVG insertion if parsing fails
+      console.error('Failed to parse SVG:', e);
+      wrapper.innerHTML = svgData;
     }
     
     // Update the current index for the next addition
