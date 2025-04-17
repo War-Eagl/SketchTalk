@@ -89,17 +89,11 @@ class SketchGallery {
       newSvg.setAttribute('viewBox', viewBox);
       newSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      // Calculate scaling factors
-      const scaleX = containerWidth / viewBoxWidth;
-      const scaleY = containerHeight / viewBoxHeight;
-      const scale = Math.min(scaleX, scaleY) * 0.9; // 90% of container size
-
-      // Set dimensions while maintaining aspect ratio
-      const scaledWidth = viewBoxWidth * scale;
-      const scaledHeight = viewBoxHeight * scale;
-
-      newSvg.style.width = `${scaledWidth}px`;
-      newSvg.style.height = `${scaledHeight}px`;
+      // Set dimensions to fill the container while maintaining aspect ratio
+      newSvg.style.width = '100%';
+      newSvg.style.height = '100%';
+      newSvg.style.maxWidth = '100%';
+      newSvg.style.maxHeight = '100%';
 
       // Copy the inner content from the original SVG
       newSvg.innerHTML = originalSvg.innerHTML;
