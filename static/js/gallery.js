@@ -9,19 +9,19 @@ class SketchGallery {
     this.maxItems = maxItems;
     this.items = [];
     this.currentIndex = 0;
-    
+
     this._initGallery();
   }
-  
+
   /**
    * Initialize gallery placeholders
    */
   _initGallery() {
     if (!this.container) return;
-    
+
     // Clear existing content
     this.container.innerHTML = '';
-    
+
     // Create placeholder items
     for (let i = 0; i < this.maxItems; i++) {
       const galleryItem = document.createElement('div');
@@ -30,25 +30,25 @@ class SketchGallery {
       this.container.appendChild(galleryItem);
     }
   }
-  
+
   /**
    * Add a new sketch to the gallery
    */
   addSketch(svgData) {
     if (!this.container) return;
-    
+
     // Get the target gallery item to replace
     const galleryItems = this.container.querySelectorAll('.gallery-item');
     if (galleryItems.length === 0) return;
-    
+
     const targetItem = galleryItems[this.currentIndex];
-    
+
     // Store the SVG data
     this.items[this.currentIndex] = svgData;
-    
+
     // Clear the placeholder
     targetItem.innerHTML = '';
-    
+
     // Create a wrapper div for proper scaling
     const wrapper = document.createElement('div');
     wrapper.style.width = '100%';
@@ -57,52 +57,56 @@ class SketchGallery {
     wrapper.style.alignItems = 'center';
     wrapper.style.justifyContent = 'center';
     targetItem.appendChild(wrapper);
-    
+
     // Parse the SVG to properly scale it
     try {
       // Parse the SVG data
       const parser = new DOMParser();
       const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
       const originalSvg = svgDoc.documentElement;
-      
+
+      // Get container dimensions
+      const containerRect = targetItem.getBoundingClientRect();
+      const containerWidth = containerRect.width;
+      const containerHeight = containerRect.height;
+
       // Get the viewBox dimensions or default to width and height
       let viewBox = originalSvg.getAttribute('viewBox');
       let viewBoxWidth, viewBoxHeight;
-      
+
       if (viewBox) {
         const parts = viewBox.split(' ');
         viewBoxWidth = parseFloat(parts[2]);
         viewBoxHeight = parseFloat(parts[3]);
       } else {
-        viewBoxWidth = parseFloat(originalSvg.getAttribute('width')) || 800;
-        viewBoxHeight = parseFloat(originalSvg.getAttribute('height')) || 600;
+        viewBoxWidth = parseFloat(originalSvg.getAttribute('width')) || containerWidth;
+        viewBoxHeight = parseFloat(originalSvg.getAttribute('height')) || containerHeight;
         viewBox = `0 0 ${viewBoxWidth} ${viewBoxHeight}`;
       }
-      
+
       // Create a new SVG element
       const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
       newSvg.setAttribute('viewBox', viewBox);
       newSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      
-      // Set dimensions to make it fit within the container while maintaining aspect ratio
-      const targetAspectRatio = viewBoxWidth / viewBoxHeight;
-      
-      if (targetAspectRatio > 1) {
-        // Wider than tall
-        newSvg.style.width = '90%';
-        newSvg.style.height = 'auto';
-      } else {
-        // Taller than wide or square
-        newSvg.style.height = '90%';
-        newSvg.style.width = 'auto';
-      }
-      
+
+      // Calculate scaling factors
+      const scaleX = containerWidth / viewBoxWidth;
+      const scaleY = containerHeight / viewBoxHeight;
+      const scale = Math.min(scaleX, scaleY) * 0.9; // 90% of container size
+
+      // Set dimensions while maintaining aspect ratio
+      const scaledWidth = viewBoxWidth * scale;
+      const scaledHeight = viewBoxHeight * scale;
+
+      newSvg.style.width = `${scaledWidth}px`;
+      newSvg.style.height = `${scaledHeight}px`;
+
       // Copy the inner content from the original SVG
       newSvg.innerHTML = originalSvg.innerHTML;
-      
+
       // Add the new SVG to the wrapper
       wrapper.appendChild(newSvg);
-      
+
       // Make sure all paths use non-scaling-stroke
       const paths = newSvg.querySelectorAll('path');
       paths.forEach(path => {
@@ -113,18 +117,18 @@ class SketchGallery {
       console.error('Failed to parse SVG:', e);
       wrapper.innerHTML = svgData;
     }
-    
+
     // Update the current index for the next addition
     this.currentIndex = (this.currentIndex + 1) % this.maxItems;
   }
-  
+
   /**
    * Get all sketches in the gallery
    */
   getSketches() {
     return this.items.filter(item => item !== undefined);
   }
-  
+
   /**
    * Clear all sketches from the gallery
    */
