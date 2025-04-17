@@ -41,19 +41,38 @@ document.addEventListener('DOMContentLoaded', () => {
   
   document.getElementById('save-server-button').addEventListener('click', async () => {
     try {
+      // Check if session is active
+      if (!sessionManager.isActive()) {
+        showStatusMessage('No active session. Starting new session...', true);
+        await sessionManager.startSession(2); // Condition 2
+      }
+
       showStatusMessage('Saving to server...');
       const svgData = drawingTool.getSVGData();
       
       // Save to server
-      await sessionManager.saveSketch(svgData);
+      const result = await sessionManager.saveSketch(svgData);
       
-      // Add to gallery
-      gallery.addSketch(svgData);
-      
-      showStatusMessage('Drawing saved to server');
+      if (result) {
+        // Add to gallery only if save was successful
+        gallery.addSketch(svgData);
+        showStatusMessage('Drawing saved to server');
+      } else {
+        showStatusMessage('Failed to save drawing', true);
+      }
     } catch (error) {
       console.error('Error saving drawing:', error);
-      showStatusMessage('Error saving drawing', true);
+      showStatusMessage('Error saving drawing: ' + error.message, true);
+
+      // If session error, try to restart session
+      if (error.message.includes('session')) {
+        try {
+          await sessionManager.startSession(2); // Condition 2
+          showStatusMessage('Session restarted. Please try saving again.');
+        } catch (sessionError) {
+          showStatusMessage('Could not restart session', true);
+        }
+      }
     }
   });
   

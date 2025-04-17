@@ -7,6 +7,9 @@
   --success-color: #28a745;
   --warning-color: #ffc107;
   --danger-color: #dc3545;
+  --toolbar-width: 70px;
+  --gallery-width: 250px;
+  --header-height: 60px;
 }
 
 * {
@@ -15,22 +18,29 @@
   box-sizing: border-box;
 }
 
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
 body {
   font-family: 'Arial', sans-serif;
   line-height: 1.6;
   color: var(--text-color);
   background-color: #f5f5f5;
-  -ms-touch-action: manipulation;
-  touch-action: manipulation;
-  width: 100vw;
-  height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .container {
   width: 100%;
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 h1, h2, h3 {
@@ -97,19 +107,24 @@ button:disabled {
 /* Drawing application styles */
 .app-container {
   display: flex;
-  height: 100vh;
+  flex: 1;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  flex-direction: row; /* Force horizontal layout */
+  position: relative;
 }
 
 .left-sidebar {
-  width: 70px;
+  width: var(--toolbar-width);
   background-color: #333;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 15px 0;
-  flex-shrink: 0; /* Prevent sidebar from shrinking */
+  padding: 10px 0;
+  flex: 0 0 auto;
+  z-index: 10;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .tool-button {
@@ -145,21 +160,17 @@ button:disabled {
   flex: 1;
   position: relative;
   background-color: white;
-
-
-  width: 100%;
-  height: 100%;
-  -ms-touch-action: none;
-  touch-action: none;
-
   overflow: hidden;
-  order: 1; /* Middle position */
+  display: flex;
+  flex-direction: column;
 }
 
 #canvas-container {
   width: 100%;
   height: 100%;
   position: relative;
+  flex: 1;
+  overflow: hidden;
 }
 
 #drawing-canvas {
@@ -169,17 +180,19 @@ button:disabled {
   width: 100%;
   height: 100%;
   cursor: crosshair;
+  touch-action: none;
 }
 
 .right-sidebar {
-  width: 250px;
+  width: var(--gallery-width);
   background-color: var(--secondary-color);
-  padding: 20px;
+  padding: 15px;
   border-left: 1px solid var(--border-color);
   overflow-y: auto;
-  order: 2; /* Ensure it's on the right */
+  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .section-title {
@@ -317,6 +330,172 @@ button:disabled {
 }
 
 /* Responsive adjustments */
+
+/* Extra large screens */
+@media (min-width: 1400px) {
+  :root {
+    --toolbar-width: 80px;
+    --gallery-width: 300px;
+  }
+
+  .tool-button {
+    width: 60px;
+    height: 60px;
+  }
+
+  .tool-button svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  .gallery-item {
+    height: 150px;
+  }
+}
+
+/* Large screens */
+@media (min-width: 1200px) and (max-width: 1399px) {
+  :root {
+    --toolbar-width: 70px;
+    --gallery-width: 280px;
+  }
+}
+
+/* Medium screens */
+@media (min-width: 992px) and (max-width: 1199px) {
+  :root {
+    --toolbar-width: 65px;
+    --gallery-width: 250px;
+  }
+
+  .tool-button {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+/* Tablets and small laptops */
+@media (min-width: 768px) and (max-width: 991px) {
+  :root {
+    --toolbar-width: 60px;
+    --gallery-width: 220px;
+  }
+
+  .tool-button {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 10px;
+  }
+
+  .tool-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .gallery-item {
+    height: 100px;
+  }
+
+  .right-sidebar {
+    padding: 10px;
+  }
+}
+
+/* Mobile devices (landscape) */
+@media (max-width: 767px) and (orientation: landscape) {
+  .app-container {
+    flex-direction: row;
+  }
+
+  .left-sidebar {
+    width: var(--toolbar-width);
+    height: 100%;
+    flex-direction: column;
+  }
+
+  .right-sidebar {
+    width: 200px;
+  }
+
+  .drawing-area {
+    flex: 1;
+  }
+
+  .gallery-item {
+    height: 80px;
+  }
+}
+
+/* Mobile devices (portrait) */
+@media (max-width: 767px) and (orientation: portrait) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  .left-sidebar {
+    width: 100%;
+    height: 50px;
+    flex-direction: row;
+    padding: 5px;
+    justify-content: space-around;
+  }
+
+  .tool-button {
+    width: 40px;
+    height: 40px;
+    margin: 0 2px;
+  }
+
+  .tool-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .drawing-area {
+    height: calc(100vh - 50px - 200px);
+  }
+
+  .right-sidebar {
+    width: 100%;
+    height: 200px;
+    order: 2;
+  }
+
+  .gallery {
+    flex-direction: row;
+    overflow-x: auto;
+    margin-bottom: 15px;
+  }
+
+  .gallery-item {
+    flex: 0 0 150px;
+    height: 100px;
+    margin-right: 10px;
+  }
+}
+
+/* Small mobile devices */
+@media (max-width: 480px) {
+  .tool-button {
+    width: 35px;
+    height: 35px;
+  }
+
+  .tool-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .gallery-item {
+    flex: 0 0 120px;
+    height: 80px;
+  }
+
+  .section-title {
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+}
 
 @media (min-width: 768px) and (max-width: 1024px) {
   body {
