@@ -495,7 +495,32 @@ class DrawingTool {
    * Get SVG data for saving
    */
   getSVGData() {
-    return this.draw.svg();
+    // Get the bounding box of all strokes
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    
+    this.strokes.forEach(stroke => {
+      const bbox = stroke.bbox();
+      minX = Math.min(minX, bbox.x);
+      minY = Math.min(minY, bbox.y);
+      maxX = Math.max(maxX, bbox.x + bbox.width);
+      maxY = Math.max(maxY, bbox.y + bbox.height);
+    });
+    
+    // Calculate viewBox
+    const viewBox = `${minX} ${minY} ${maxX - minX} ${maxY - minY}`;
+    
+    // Create a new SVG element with proper viewBox
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', viewBox);
+    svg.setAttribute('preserveAspectRatio', 'xMinYMin meet');
+    
+    // Copy all strokes to the new SVG
+    this.strokes.forEach(stroke => {
+      const clone = stroke.clone();
+      svg.appendChild(clone.node);
+    });
+    
+    return svg.outerHTML;
   }
   
   /**
