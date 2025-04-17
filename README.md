@@ -21,20 +21,30 @@ An interactive web application that explores AI-enhanced sketching experiences.
 - Drawing Library: SVG.js
 - Storage: File-based system (SVG files and audio recordings)
 
+## Setup Requirements
+
+- Python 3.11 or higher
+- FFmpeg (for audio processing)
+
 ## Setup
 
-1. Create a virtual environment:
+1. Install FFmpeg:
+   - Windows: Download from [FFmpeg.org](https://ffmpeg.org/download.html)
+   - Linux: `sudo apt-get install ffmpeg`
+   - Mac: `brew install ffmpeg`
+
+2. Create a virtual environment:
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-2. Install dependencies:
+3. Install dependencies:
 ```bash
 pip install .
 ```
 
-3. Run the application:
+4. Run the application:
 ```bash
 flask run
 ```
