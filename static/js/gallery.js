@@ -89,11 +89,15 @@ class SketchGallery {
       newSvg.setAttribute('viewBox', viewBox);
       newSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
-      // Set dimensions to fill the container while maintaining aspect ratio
-      newSvg.style.width = '100%';
-      newSvg.style.height = '100%';
-      newSvg.style.maxWidth = '100%';
-      newSvg.style.maxHeight = '100%';
+      // Set dimensions to 20% while maintaining aspect ratio
+      newSvg.style.width = '20%';
+      newSvg.style.height = '20%';
+      newSvg.style.maxWidth = '20%';
+      newSvg.style.maxHeight = '20%';
+      
+      // Center the SVG in the container
+      wrapper.style.justifyContent = 'center';
+      wrapper.style.alignItems = 'center';
 
       // Copy the inner content from the original SVG
       newSvg.innerHTML = originalSvg.innerHTML;
