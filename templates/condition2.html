@@ -10,93 +10,145 @@
     <!-- Feather icons -->
     <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        /* Overriding styles for the layout */
+        /* Overriding styles for the horizontal layout with left toolbar and right gallery */
         .app-container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             height: 100vh;
+            overflow: hidden;
         }
         
-        .toolbar {
-            display: flex;
-            justify-content: center;
+        .left-toolbar {
+            width: 70px;
             background-color: #333;
-            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 15px 0;
+            flex-shrink: 0;
         }
         
         .tool-button {
             width: 50px;
             height: 50px;
-            margin: 0 10px;
             background-color: transparent;
             border: none;
             color: white;
             display: flex;
             align-items: center;
             justify-content: center;
+            margin-bottom: 15px;
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+        }
+        
+        .tool-button svg {
+            width: 24px;
+            height: 24px;
         }
         
         .tool-button:hover, .tool-button.active {
             background-color: var(--primary-color);
         }
         
-        .content-area {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            overflow: hidden;
-        }
-        
         .drawing-area {
             flex: 1;
             position: relative;
+            background-color: white;
             overflow: hidden;
         }
         
-        .gallery-area {
-            height: 250px;
+        .right-gallery {
+            width: 250px;
             background-color: var(--secondary-color);
-            border-top: 1px solid var(--border-color);
             padding: 20px;
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
             overflow-y: auto;
         }
         
         .gallery {
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             gap: 15px;
-            height: 140px;
+            margin-bottom: 30px;
         }
         
         .gallery-item {
-            width: 140px;
+            width: 100%;
             height: 140px;
-            flex-shrink: 0;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            position: relative;
         }
         
-        .section-title {
-            margin-bottom: 15px;
+        .gallery-item img, .gallery-item svg {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
         
         .ai-generation {
             margin-bottom: 20px;
         }
         
+        .ai-image-container {
+            width: 100%;
+            height: 200px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
         .session-controls {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
             position: sticky;
             bottom: 0;
-            padding-top: 15px;
             background-color: var(--secondary-color);
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            .left-toolbar {
+                width: 100%;
+                height: 70px;
+                flex-direction: row;
+                justify-content: center;
+                padding: 10px 0;
+            }
+            
+            .tool-button {
+                margin-bottom: 0;
+                margin-right: 10px;
+            }
+            
+            .right-gallery {
+                width: 100%;
+                max-height: 250px;
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-        <!-- Toolbar at the top -->
-        <div class="toolbar">
+        <!-- Toolbar on the left -->
+        <div class="left-toolbar">
             <button id="clear-button" class="tool-button" title="Clear Canvas">
                 <i data-feather="trash-2"></i>
             </button>
@@ -117,29 +169,27 @@
             </button>
         </div>
 
-        <div class="content-area">
-            <!-- Drawing area (main content) -->
-            <div class="drawing-area">
-                <div id="canvas-container"></div>
-            </div>
+        <!-- Drawing area (middle) -->
+        <div class="drawing-area">
+            <div id="canvas-container"></div>
+        </div>
 
-            <!-- Gallery area (at the bottom) -->
-            <div class="gallery-area">
-                <h3 class="section-title">Your Sketches</h3>
-                <div id="gallery-container" class="gallery"></div>
-                
-                <div class="ai-generation">
-                    <h3 class="section-title">AI Image Generation</h3>
-                    <div id="ai-image-container" class="ai-image-container">
-                        <div class="gallery-placeholder">AI image will appear here</div>
-                    </div>
-                    <input type="text" id="ai-prompt-input" class="prompt-input" placeholder="Enter prompt for AI...">
-                    <button id="ai-generate-button" class="ai-help-button">Generate Image</button>
+        <!-- Gallery on the right -->
+        <div class="right-gallery">
+            <h3 class="section-title">Your Sketches</h3>
+            <div id="gallery-container" class="gallery"></div>
+            
+            <div class="ai-generation">
+                <h3 class="section-title">AI Image Generation</h3>
+                <div id="ai-image-container" class="ai-image-container">
+                    <div class="gallery-placeholder">AI image will appear here</div>
                 </div>
-                
-                <div class="session-controls">
-                    <button id="end-session-button" class="end-session-button">End Session</button>
-                </div>
+                <input type="text" id="ai-prompt-input" class="prompt-input" placeholder="Enter prompt for AI...">
+                <button id="ai-generate-button" class="ai-help-button">Generate Image</button>
+            </div>
+            
+            <div class="session-controls">
+                <button id="end-session-button" class="end-session-button">End Session</button>
             </div>
         </div>
     </div>
