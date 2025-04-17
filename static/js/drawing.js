@@ -216,6 +216,13 @@ class DrawingTool {
         
         // Save stroke for undo/redo
         this.strokes.push(this.currentStroke);
+        
+        // Add to undo stack for draw action
+        this.undoStack.push({
+          type: 'draw',
+          stroke: this.currentStroke.clone()
+        });
+        
         this.redoStack = []; // Clear redo stack when new action is performed
       }
     } else {

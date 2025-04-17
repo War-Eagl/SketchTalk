@@ -53,10 +53,27 @@ class SketchGallery {
     // Scale the SVG to fit the container
     const svg = targetItem.querySelector('svg');
     if (svg) {
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '100%');
-      svg.style.maxWidth = '100%';
-      svg.style.maxHeight = '100%';
+      // Get the original viewBox dimensions
+      let viewBox = svg.getAttribute('viewBox');
+      if (!viewBox) {
+        // If no viewBox exists, create one based on width and height
+        const width = parseFloat(svg.getAttribute('width') || svg.style.width || '100%');
+        const height = parseFloat(svg.getAttribute('height') || svg.style.height || '100%');
+        viewBox = `0 0 ${width} ${height}`;
+        svg.setAttribute('viewBox', viewBox);
+      }
+      
+      // Remove width and height to allow CSS to control the size
+      svg.removeAttribute('width');
+      svg.removeAttribute('height');
+      
+      // Apply preserveAspectRatio to ensure the entire drawing is visible
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      
+      // Apply CSS for proper scaling
+      svg.style.width = '100%';
+      svg.style.height = '100%';
+      svg.style.display = 'block';
     }
     
     // Update the current index for the next addition

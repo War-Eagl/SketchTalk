@@ -117,7 +117,57 @@ def end_session():
     if not session_id:
         return jsonify({"error": "Missing session ID"}), 400
     
-    # Here you would add any final processing for the session
+    # Process any uploaded audio chunks (merge them)
+    session_audio_folder = UPLOAD_FOLDER / session_id / "audio"
+    if session_audio_folder.exists() and any(session_audio_folder.glob('audio_chunk_*.webm')):
+        try:
+            # Create the merged file path
+            merged_file_path = session_audio_folder / "merged_audio.webm"
+            
+            # Get all audio chunks and sort them by chunk number
+            audio_chunks = sorted(
+                session_audio_folder.glob('audio_chunk_*.webm'),
+                key=lambda p: int(p.stem.split('_')[-1])
+            )
+            
+            # Use FFmpeg if it's installed to merge audio files
+            import subprocess
+            
+            # Create a file list for ffmpeg
+            filelist_path = session_audio_folder / "filelist.txt"
+            with open(filelist_path, 'w') as filelist:
+                for chunk in audio_chunks:
+                    filelist.write(f"file '{chunk.name}'\n")
+            
+            # Use FFmpeg to concatenate the files
+            try:
+                subprocess.run(
+                    [
+                        'ffmpeg', '-y', '-f', 'concat', '-safe', '0',
+                        '-i', str(filelist_path), '-c', 'copy', 
+                        str(merged_file_path)
+                    ],
+                    check=True,
+                    capture_output=True
+                )
+                logger.debug(f"Successfully merged audio chunks to {merged_file_path}")
+            except (subprocess.SubprocessError, FileNotFoundError) as e:
+                # Fallback: Manual file concatenation if FFmpeg fails or isn't available
+                logger.warning(f"FFmpeg failed, falling back to manual concatenation: {str(e)}")
+                with open(merged_file_path, 'wb') as outfile:
+                    for chunk in audio_chunks:
+                        with open(chunk, 'rb') as infile:
+                            outfile.write(infile.read())
+                            
+                logger.debug(f"Merged audio chunks manually to {merged_file_path}")
+            
+            # Clean up the file list
+            if filelist_path.exists():
+                filelist_path.unlink()
+                
+        except Exception as e:
+            logger.error(f"Error merging audio chunks: {str(e)}")
+    
     logger.debug(f"Ended session: {session_id}")
     return jsonify({"success": True})
 

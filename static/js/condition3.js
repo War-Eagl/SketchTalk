@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (audioRecorder) {
         audioRecorder.stop();
         this.classList.remove('recording');
-        this.textContent = 'Start Recording';
         showStatusMessage('Recording stopped');
       }
     } else {
@@ -82,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const success = audioRecorder.start();
         if (success) {
           this.classList.add('recording');
-          this.textContent = 'Stop Recording';
           showStatusMessage('Recording started');
         } else {
           showStatusMessage('Failed to start recording', true);
@@ -123,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         audioRecorder.stop();
         const recordButton = document.getElementById('record-button');
         recordButton.classList.remove('recording');
-        recordButton.textContent = 'Start Recording';
       }
       
       showStatusMessage('Ending session...');

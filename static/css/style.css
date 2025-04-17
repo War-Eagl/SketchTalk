@@ -107,8 +107,8 @@ button:disabled {
 }
 
 .tool-button {
-  width: 40px;
-  height: 40px;
+  width: 50px;
+  height: 50px;
   background-color: transparent;
   border: none;
   color: white;
@@ -121,8 +121,18 @@ button:disabled {
   transition: background-color 0.3s;
 }
 
+.tool-button svg {
+  width: 24px;
+  height: 24px;
+}
+
 .tool-button:hover, .tool-button.active {
   background-color: var(--primary-color);
+}
+
+.tool-button.recording {
+  background-color: var(--danger-color);
+  animation: pulse 1.5s infinite;
 }
 
 .drawing-area {
