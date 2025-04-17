@@ -95,16 +95,17 @@ button:disabled {
   display: flex;
   height: 100vh;
   overflow: hidden;
+  flex-direction: row; /* Force horizontal layout */
 }
 
 .left-sidebar {
-  width: 60px;
+  width: 70px;
   background-color: #333;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 15px 0;
-  order: 0; /* Ensure it's on the left */
+  flex-shrink: 0; /* Prevent sidebar from shrinking */
 }
 
 .tool-button {
@@ -195,9 +196,13 @@ button:disabled {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  position: relative;
 }
 
 .gallery-item img, .gallery-item svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
   max-width: 100%;
   max-height: 100%;
 }
@@ -312,6 +317,12 @@ button:disabled {
     flex-direction: row;
     padding: 0 15px;
     justify-content: space-around;
+    order: 0;
+  }
+  
+  .drawing-area {
+    order: 1;
+    height: calc(100vh - 60px - 250px); /* Adjust for top and bottom bars */
   }
   
   .tool-button {
@@ -324,5 +335,10 @@ button:disabled {
     height: 250px;
     border-left: none;
     border-top: 1px solid var(--border-color);
+    order: 2;
+  }
+  
+  .session-controls {
+    position: relative; /* Reset sticky positioning on mobile */
   }
 }

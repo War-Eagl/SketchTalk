@@ -53,27 +53,44 @@ class SketchGallery {
     // Scale the SVG to fit the container
     const svg = targetItem.querySelector('svg');
     if (svg) {
-      // Get the original viewBox dimensions
+      // Get original dimensions
+      const originalWidth = svg.getAttribute('width') || '100%';
+      const originalHeight = svg.getAttribute('height') || '100%';
+      
+      // Get or create viewBox
       let viewBox = svg.getAttribute('viewBox');
       if (!viewBox) {
-        // If no viewBox exists, create one based on width and height
-        const width = parseFloat(svg.getAttribute('width') || svg.style.width || '100%');
-        const height = parseFloat(svg.getAttribute('height') || svg.style.height || '100%');
+        const width = parseFloat(originalWidth) || 100;
+        const height = parseFloat(originalHeight) || 100;
         viewBox = `0 0 ${width} ${height}`;
         svg.setAttribute('viewBox', viewBox);
       }
       
-      // Remove width and height to allow CSS to control the size
+      // Clear any inline size attributes to let CSS handle sizing
       svg.removeAttribute('width');
       svg.removeAttribute('height');
       
-      // Apply preserveAspectRatio to ensure the entire drawing is visible
+      // Set proper attributes for scaling
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
       
-      // Apply CSS for proper scaling
+      // Apply CSS styles for proper display
       svg.style.width = '100%';
       svg.style.height = '100%';
       svg.style.display = 'block';
+      svg.style.objectFit = 'contain';
+      
+      // Fix for any nested elements with explicit dimensions
+      const allElements = svg.querySelectorAll('*');
+      allElements.forEach(el => {
+        if (el.hasAttribute('width') && el.getAttribute('width').includes('%')) {
+          el.setAttribute('width', el.getAttribute('width'));
+        }
+        if (el.hasAttribute('height') && el.getAttribute('height').includes('%')) {
+          el.setAttribute('height', el.getAttribute('height'));
+        }
+      });
     }
     
     // Update the current index for the next addition
