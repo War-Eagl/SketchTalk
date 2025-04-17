@@ -43,68 +43,66 @@ class SketchGallery {
     
     const targetItem = galleryItems[this.currentIndex];
     
-    // Store the SVG data and update the view
+    // Store the SVG data
     this.items[this.currentIndex] = svgData;
     
-    // Clear the placeholder and add the SVG
+    // Clear the placeholder
     targetItem.innerHTML = '';
-    targetItem.insertAdjacentHTML('beforeend', svgData);
     
-    // Scale the SVG to fit the container
-    const svg = targetItem.querySelector('svg');
-    if (svg) {
-      // Get or create viewBox for proper scaling
-      let viewBox = svg.getAttribute('viewBox');
-      if (!viewBox) {
-        // Default dimensions if none provided
-        const width = parseFloat(svg.getAttribute('width')) || 800;
-        const height = parseFloat(svg.getAttribute('height')) || 600;
-        viewBox = `0 0 ${width} ${height}`;
-        svg.setAttribute('viewBox', viewBox);
+    // Parse the SVG to manipulate it
+    const parser = new DOMParser();
+    const svgDoc = parser.parseFromString(svgData, 'image/svg+xml');
+    const originalSvg = svgDoc.documentElement;
+    
+    // Create a containing div for proper centering and scaling
+    const container = document.createElement('div');
+    container.style.width = '100%';
+    container.style.height = '100%';
+    container.style.display = 'flex';
+    container.style.alignItems = 'center';
+    container.style.justifyContent = 'center';
+    container.style.overflow = 'hidden';
+    targetItem.appendChild(container);
+    
+    // Create new optimized SVG element
+    const newSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    
+    // Get or create viewBox
+    let viewBox = originalSvg.getAttribute('viewBox');
+    if (!viewBox) {
+      const width = parseFloat(originalSvg.getAttribute('width')) || 800;
+      const height = parseFloat(originalSvg.getAttribute('height')) || 600;
+      viewBox = `0 0 ${width} ${height}`;
+    }
+    
+    // Set optimized attributes for the new SVG
+    newSvg.setAttribute('viewBox', viewBox);
+    newSvg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    newSvg.style.width = '100%';
+    newSvg.style.height = '100%';
+    newSvg.style.maxWidth = '90%';
+    newSvg.style.maxHeight = '90%';
+    
+    // Copy the inner content from the original SVG
+    newSvg.innerHTML = originalSvg.innerHTML;
+    
+    // Add the new SVG to the container
+    container.appendChild(newSvg);
+    
+    // Process paths to ensure visibility
+    const paths = newSvg.querySelectorAll('path');
+    paths.forEach(path => {
+      // Ensure visible strokes
+      if (path.hasAttribute('stroke-width')) {
+        const currentWidth = parseFloat(path.getAttribute('stroke-width'));
+        if (currentWidth < 1) {
+          path.setAttribute('stroke-width', '1');
+        }
       }
       
-      // Remove existing size attributes to avoid conflicts
-      svg.removeAttribute('width');
-      svg.removeAttribute('height');
-      
-      // Set proper attributes for scaling
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      
-      // Position the SVG in the center of the container and scale it to fit
-      svg.style.position = 'absolute';
-      svg.style.top = '50%';
-      svg.style.left = '50%';
-      svg.style.transform = 'translate(-50%, -50%)';
-      svg.style.maxWidth = '90%';
-      svg.style.maxHeight = '90%';
-      svg.style.width = 'auto';
-      svg.style.height = 'auto';
-      
-      // Ensure the SVG takes up appropriate space
-      targetItem.style.display = 'flex';
-      targetItem.style.alignItems = 'center';
-      targetItem.style.justifyContent = 'center';
-      
-      // Make sure path strokes are visible at any scale
-      const paths = svg.querySelectorAll('path');
-      paths.forEach(path => {
-        // Ensure stroke width is visible but not too thick
-        if (path.hasAttribute('stroke-width')) {
-          const currentWidth = parseFloat(path.getAttribute('stroke-width'));
-          if (currentWidth < 1) {
-            path.setAttribute('stroke-width', '1');
-          }
-        }
-        
-        // Ensure path uses absolute position 
-        if (path.hasAttribute('transform')) {
-          // Keep transform for proper positioning
-        } else {
-          // Add vector-effect to maintain stroke width when scaling
-          path.setAttribute('vector-effect', 'non-scaling-stroke');
-        }
-      });
-    }
+      // Add vector effect for non-scaling strokes
+      path.setAttribute('vector-effect', 'non-scaling-stroke');
+    });
     
     // Update the current index for the next addition
     this.currentIndex = (this.currentIndex + 1) % this.maxItems;
