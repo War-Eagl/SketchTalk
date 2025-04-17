@@ -53,42 +53,55 @@ class SketchGallery {
     // Scale the SVG to fit the container
     const svg = targetItem.querySelector('svg');
     if (svg) {
-      // Get original dimensions
-      const originalWidth = svg.getAttribute('width') || '100%';
-      const originalHeight = svg.getAttribute('height') || '100%';
-      
-      // Get or create viewBox
+      // Get or create viewBox for proper scaling
       let viewBox = svg.getAttribute('viewBox');
       if (!viewBox) {
-        const width = parseFloat(originalWidth) || 100;
-        const height = parseFloat(originalHeight) || 100;
+        // Default dimensions if none provided
+        const width = parseFloat(svg.getAttribute('width')) || 800;
+        const height = parseFloat(svg.getAttribute('height')) || 600;
         viewBox = `0 0 ${width} ${height}`;
         svg.setAttribute('viewBox', viewBox);
       }
       
-      // Clear any inline size attributes to let CSS handle sizing
+      // Remove existing size attributes to avoid conflicts
       svg.removeAttribute('width');
       svg.removeAttribute('height');
       
       // Set proper attributes for scaling
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '100%');
       
-      // Apply CSS styles for proper display
-      svg.style.width = '100%';
-      svg.style.height = '100%';
-      svg.style.display = 'block';
-      svg.style.objectFit = 'contain';
+      // Position the SVG in the center of the container and scale it to fit
+      svg.style.position = 'absolute';
+      svg.style.top = '50%';
+      svg.style.left = '50%';
+      svg.style.transform = 'translate(-50%, -50%)';
+      svg.style.maxWidth = '90%';
+      svg.style.maxHeight = '90%';
+      svg.style.width = 'auto';
+      svg.style.height = 'auto';
       
-      // Fix for any nested elements with explicit dimensions
-      const allElements = svg.querySelectorAll('*');
-      allElements.forEach(el => {
-        if (el.hasAttribute('width') && el.getAttribute('width').includes('%')) {
-          el.setAttribute('width', el.getAttribute('width'));
+      // Ensure the SVG takes up appropriate space
+      targetItem.style.display = 'flex';
+      targetItem.style.alignItems = 'center';
+      targetItem.style.justifyContent = 'center';
+      
+      // Make sure path strokes are visible at any scale
+      const paths = svg.querySelectorAll('path');
+      paths.forEach(path => {
+        // Ensure stroke width is visible but not too thick
+        if (path.hasAttribute('stroke-width')) {
+          const currentWidth = parseFloat(path.getAttribute('stroke-width'));
+          if (currentWidth < 1) {
+            path.setAttribute('stroke-width', '1');
+          }
         }
-        if (el.hasAttribute('height') && el.getAttribute('height').includes('%')) {
-          el.setAttribute('height', el.getAttribute('height'));
+        
+        // Ensure path uses absolute position 
+        if (path.hasAttribute('transform')) {
+          // Keep transform for proper positioning
+        } else {
+          // Add vector-effect to maintain stroke width when scaling
+          path.setAttribute('vector-effect', 'non-scaling-stroke');
         }
       });
     }
