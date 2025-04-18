@@ -1,104 +1,82 @@
 # TalkSketch
 
-A collaborative drawing application that allows users to sketch and save their drawings. Built with React and Flask, it provides a smooth drawing experience with advanced features like undo/redo and SVG export.
+An interactive web application that explores AI-enhanced sketching experiences.
 
 ## Features
 
-- Real-time drawing on canvas with smooth strokes
-- Advanced undo/redo functionality with proper stack management
-- Erase mode that removes strokes by intersecting with them
-- Save drawings locally as SVG files
-- Save drawings to server with unique timestamps
-- Responsive design that adapts to window size
-- Single-port architecture (no CORS issues)
+- Three different sketching conditions:
+  - Baseline Sketching: Traditional sketching without assistance
+  - AI-Inspired Sketching: Get inspiration from AI-generated images
+  - Voice-Assisted AI Sketching: Speak while drawing to get AI suggestions
+- Real-time drawing with smooth bezier curves
+- Gallery to save and view your sketches
+- Undo/redo functionality
+- Eraser tool
+- Responsive design
+
+## Tech Stack
+
+- Backend: Python Flask
+- Frontend: HTML, CSS, JavaScript
+- Drawing Library: SVG.js
+- Storage: File-based system (SVG files and audio recordings)
+
+## Setup Requirements
+
+- Python 3.11 or higher
+- FFmpeg (for audio processing)
+
+## Setup
+
+1. Install FFmpeg:
+   - Windows: Download from [FFmpeg.org](https://ffmpeg.org/download.html)
+   - Linux: `sudo apt-get install ffmpeg`
+   - Mac: `brew install ffmpeg`
+
+2. Create a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install .
+```
+
+4. Run the application:
+```bash
+flask run
+```
+
+4. Open your browser and navigate to `http://localhost:5000`
 
 ## Project Structure
 
 ```
-talksketch/
-├── backend/           # Flask server
-│   ├── app.py        # Main server application (serves both API and React frontend)
-│   ├── static/       # Static files
-│   └── templates/    # HTML templates
-├── frontend/         # React application
-│   ├── src/          # Source code
-│   │   ├── components/
-│   │   │   └── DrawingCanvas.tsx  # Main drawing component
-│   │   ├── App.tsx
-│   │   └── ...
-│   ├── public/       # Public assets
-│   └── package.json  # Dependencies
-├── saved_drawings/   # User-generated drawings
-├── docs/            # Documentation
-└── run.ps1          # Script to start the server (Windows)
+SketchTalk/
+├── app.py              # Main Flask application
+├── models.py           # Database models
+├── static/
+│   ├── css/
+│   ├── js/
+│   └── uploads/       # User uploaded files
+├── templates/
+│   ├── condition1.html
+│   ├── condition2.html
+│   ├── condition3.html
+│   └── index.html
+└── venv/              # Virtual environment (not committed)
 ```
 
-## Quick Start
+## Contributing
 
-1. Install dependencies:
-   ```bash
-   # Install Python dependencies
-   cd backend
-   pip install flask
-   cd ..
-
-   # Install Node.js dependencies
-   cd frontend
-   npm install
-   cd ..
-   ```
-
-2. Build the React frontend:
-   ```bash
-   cd frontend
-   npm run build
-   cd ..
-   ```
-
-3. Run the application:
-   ```bash
-   # On Windows
-   .\run.ps1
-
-   # On Linux/Mac
-   ./run.sh
-   ```
-
-The application will be available at http://localhost:5000
-
-## Usage
-
-### Drawing
-- Click and drag to draw
-- The canvas automatically resizes with the window
-- Strokes are smoothed for better drawing experience
-
-### Erasing
-- Click the "Erase" button to toggle erase mode
-- In erase mode, any stroke that intersects with your mouse cursor will be erased
-- Click or drag to erase strokes
-- Toggle back to "Draw" mode to continue drawing
-
-### Undo/Redo
-- Use the "Undo" button to remove the last stroke
-- Use the "Redo" button to restore the last undone stroke
-- Works for both drawing and erasing actions
-- Drawing a new stroke after undoing will clear the redo stack
-
-### Saving
-- "Save Locally" - Downloads the drawing as an SVG file
-- "Save to Server" - Saves the drawing to the server with a timestamp
-- Saved files are stored in the `saved_drawings` directory
-
-## Development
-
-- Backend: Python/Flask
-- Frontend: React/TypeScript
-- Drawing: HTML5 Canvas
-- File Format: SVG
-- State Management: React Hooks
-- Build Tool: Create React App
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
 ## License
 
-MIT License
+This project is licensed under the MIT License - see the LICENSE file for details.
