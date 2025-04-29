@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <!-- SVG.js for drawing -->
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0.16/dist/svg.min.js"></script>
-    <!-- Feather icons -->
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         /* Overriding styles for the horizontal layout with left toolbar and right gallery */
         body {
@@ -77,7 +77,8 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            overflow-y: auto;
+            height: 100vh;
+            overflow: hidden;
             order: 2;
         }
         
@@ -86,6 +87,8 @@
             flex-direction: column;
             gap: 15px;
             margin-bottom: 30px;
+            flex: 1 1 auto;
+            overflow-y: auto;
         }
         
         .gallery-item {
@@ -97,14 +100,11 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
         }
         
         .gallery-item svg {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
             max-height: 100%;
-            display: block;
         }
         
         .gallery-placeholder {
@@ -117,6 +117,22 @@
             font-style: italic;
         }
         
+        .ai-generation {
+            margin-bottom: 20px;
+        }
+        
+        .ai-image-container {
+            width: 100%;
+            height: 200px;
+            background-color: white;
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+        
         .session-controls {
             margin-top: auto;
             padding-top: 20px;
@@ -125,6 +141,14 @@
             bottom: 0;
             background-color: var(--secondary-color);
         }
+        
+        /* Insert Top 3 selection modal CSS */
+        #top3-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:10000; }
+        #top3-modal .modal-content { background: white; padding:20px; border-radius:8px; width:80%; max-width:600px; max-height:80%; overflow:auto; display:flex; flex-direction:column; }
+        #top3-modal .modal-gallery { display: flex; flex-wrap: wrap; gap:10px; margin-bottom:20px; }
+        #top3-modal .modal-image-item { flex: 1 1 30%; cursor:pointer; position:relative; border:2px solid transparent; }
+        #top3-modal .modal-image-item.selected { border-color: var(--primary-color); }
+        #top3-modal .modal-image-item svg { width:100%; height:auto; }
         
         /* Mobile responsive adjustments */
         @media (max-width: 768px) {
@@ -159,22 +183,25 @@
         <!-- Toolbar on the left -->
         <div class="toolbar-container">
             <button id="clear-button" class="tool-button" title="Clear Canvas">
-                <i data-feather="trash-2"></i>
+                <i class="fas fa-trash"></i>
+            </button>
+            <button id="draw-button" class="tool-button active" title="Draw">
+                <i class="fas fa-pencil-alt"></i>
             </button>
             <button id="eraser-button" class="tool-button" title="Eraser">
-                <i data-feather="delete"></i>
+                <i class="fas fa-eraser"></i>
             </button>
             <button id="undo-button" class="tool-button" title="Undo">
-                <i data-feather="corner-up-left"></i>
+                <i class="fas fa-undo"></i>
             </button>
             <button id="redo-button" class="tool-button" title="Redo">
-                <i data-feather="corner-up-right"></i>
+                <i class="fas fa-redo"></i>
             </button>
             <button id="save-local-button" class="tool-button" title="Save Locally">
-                <i data-feather="download"></i>
+                <i class="fas fa-download"></i>
             </button>
             <button id="save-server-button" class="tool-button" title="Save to Server">
-                <i data-feather="save"></i>
+                <i class="fas fa-save"></i>
             </button>
         </div>
 
@@ -188,7 +215,17 @@
             <h3 class="section-title">Your Sketches</h3>
             <div id="gallery-container" class="gallery"></div>
             
+            <!-- <div class="ai-generation">
+                <h3 class="section-title">AI Image Generation</h3>
+                <div id="ai-image-container" class="ai-image-container">
+                    <div class="gallery-placeholder">AI image will appear here</div>
+                </div>
+                <input type="text" id="ai-prompt-input" class="prompt-input" placeholder="Enter prompt for AI...">
+                <button id="ai-generate-button" class="ai-help-button">Generate Image</button>
+            </div> -->
+            
             <div class="session-controls">
+                <button id="submit-button" class="submit-button" title="Submit">Submit</button>
                 <button id="end-session-button" class="end-session-button">End Session</button>
             </div>
         </div>
@@ -196,17 +233,44 @@
     
     <!-- Status indicator -->
     <div id="status-message" class="status-indicator"></div>
+
+    <!-- Top 3 selection modal -->
+    <div id="top3-modal" class="modal">
+      <div class="modal-content">
+        <h3>Select Top 3 Sketches</h3>
+        <div id="top3-image-container" class="modal-gallery"></div>
+        <div style="text-align:right;">
+          <button id="top3-cancel-button" class="end-session-button">Cancel</button>
+          <button id="top3-submit-button" class="submit-button">Submit Top 3</button>
+        </div>
+      </div>
+    </div>
     
     <!-- JavaScript -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lineWidthPopup.css') }}">
     <script src="{{ url_for('static', filename='js/drawing.js') }}"></script>
     <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/session.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lineWidthPopup.js') }}"></script>
     <script src="{{ url_for('static', filename='js/condition1.js') }}"></script>
     <script>
-        // Initialize Feather icons
-        document.addEventListener('DOMContentLoaded', () => {
-            feather.replace();
+    // Add pen/line width popup handler after DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', function() {
+      const drawButton = document.getElementById('draw-button');
+      if (drawButton) {
+        drawButton.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          // Use global drawingTool from condition1.js
+          if (window.drawingTool && window.showLineWidthPopup) {
+            window.showLineWidthPopup(window.drawingTool.config.stroke.width, function(newWidth) {
+              window.drawingTool.config.stroke.width = newWidth;
+              // Optionally show a status message if available
+              if (window.showStatusMessage) window.showStatusMessage('Line width set to ' + newWidth);
+            });
+          }
         });
+      }
+    });
     </script>
 </body>
 </html>

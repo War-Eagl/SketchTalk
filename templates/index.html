@@ -5,8 +5,47 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TalkSketch - Exploring AI-Enhanced Sketching</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        #start-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        #start-modal .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 80%;
+            text-align: center;
+        }
+        #start-modal .start-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: var(--primary-color);
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
 </head>
 <body>
+    <div id="start-modal">
+        <div class="modal-content">
+            <h2 id="modal-title">Condition Instructions</h2>
+            <p id="modal-text">Placeholder instructions.</p>
+            <button id="start-button" class="start-button">Start</button>
+        </div>
+    </div>
     <div class="landing-container">
         <h1 class="landing-title">TalkSketch</h1>
         <p>Exploring how sketching and speech can be used by AI models to improve the sketching experience</p>
@@ -27,5 +66,29 @@
             <a href="/condition3" class="condition-button">Condition 3: Voice-Assisted</a>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const modal = document.getElementById('start-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalText = document.getElementById('modal-text');
+            const startBtn = document.getElementById('start-button');
+            const conditionLinks = document.querySelectorAll('.condition-button');
+            let targetUrl = '';
+            conditionLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    targetUrl = this.href;
+                    const conditionName = this.textContent.trim();
+                    modalTitle.textContent = conditionName + ' Instructions';
+                    modalText.textContent = 'Placeholder instructions for ' + conditionName + '.';
+                    modal.style.display = 'flex';
+                });
+            });
+            startBtn.addEventListener('click', function() {
+                modal.style.display = 'none';
+                window.location.href = targetUrl;
+            });
+        });
+    </script>
 </body>
 </html>

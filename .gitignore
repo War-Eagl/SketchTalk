@@ -52,5 +52,4 @@ uploads/*
 .cache/
 
 # Dependencies
-pyproject.toml
 uv.lock

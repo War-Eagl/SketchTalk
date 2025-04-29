@@ -22,6 +22,7 @@ html, body {
   height: 100%;
   width: 100%;
   overflow: hidden;
+  margin: 0;
 }
 
 body {
@@ -41,6 +42,33 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+}
+
+.container, .app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar-container, .left-sidebar {
+  flex: 0 0 var(--toolbar-width);
+  height: auto;
+  overflow: visible;
+}
+
+.drawing-container, .drawing-area {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.gallery-container, .right-sidebar {
+  flex: 0 0 var(--gallery-width);
+  height: auto;
+  overflow: visible;
+}
+
+.session-controls {
+  flex: 0 0 auto;
 }
 
 h1, h2, h3 {
@@ -110,21 +138,17 @@ button:disabled {
   flex: 1;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 }
 
 .left-sidebar {
-  width: var(--toolbar-width);
   background-color: #333;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding: 10px 0;
-  flex: 0 0 auto;
   z-index: 10;
-  overflow-y: auto;
-  overflow-x: hidden;
 }
 
 .tool-button {
@@ -156,6 +180,21 @@ button:disabled {
   animation: pulse 1.5s infinite;
 }
 
+.tool-button.submit-button {
+  background-color: var(--success-color);
+  color: white;
+  width: 100%;
+  height: auto;
+  padding: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.tool-button.submit-button:hover {
+  background-color: #218838;
+}
+
 .drawing-area {
   flex: 1;
   position: relative;
@@ -184,12 +223,9 @@ button:disabled {
 }
 
 .right-sidebar {
-  width: var(--gallery-width);
   background-color: var(--secondary-color);
   padding: 15px;
   border-left: 1px solid var(--border-color);
-  overflow-y: auto;
-  flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -277,18 +313,6 @@ button:disabled {
   animation: pulse 1.5s infinite;
 }
 
-@keyframes pulse {
-  0% {
-    background-color: var(--danger-color);
-  }
-  50% {
-    background-color: #ff6b6b;
-  }
-  100% {
-    background-color: var(--danger-color);
-  }
-}
-
 .ai-help-button {
   width: 100%;
   padding: 10px;
@@ -309,6 +333,24 @@ button:disabled {
   width: 100%;
   padding: 10px;
   background-color: var(--danger-color);
+}
+
+/* Submit button full-width style */
+.submit-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  background-color: var(--success-color);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.submit-button:hover {
+  background-color: #218838;
 }
 
 /* Status indicator */
@@ -541,5 +583,60 @@ button:disabled {
   
   .session-controls {
     position: relative; /* Reset sticky positioning on mobile */
+  }
+}
+
+@media (max-width: 1024px) {
+  .app-container {
+    flex-direction: column;
+  }
+  .toolbar-container, .left-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    width: 100%;
+    height: auto;
+    justify-content: center;
+  }
+  .tool-button {
+    margin: 5px;
+  }
+  .gallery-container, .right-sidebar {
+    width: 100%;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: wrap;
+    padding: 10px;
+    border-top: 1px solid var(--border-color);
+    border-left: none;
+    overflow-x: auto;
+  }
+  .gallery-item {
+    flex: 0 0 45%;
+    margin: 5px;
+    height: auto;
+  }
+  .drawing-container, .drawing-area {
+    flex: 1;
+    height: auto;
+  }
+  #canvas-container, #drawing-canvas {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  .session-controls {
+    position: relative;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    background-color: var(--danger-color);
+  }
+  50% {
+    background-color: #ff6b6b;
+  }
+  100% {
+    background-color: var(--danger-color);
   }
 }

@@ -7,6 +7,7 @@ from datetime import datetime
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify, send_file
 from flask_cors import CORS
+import os
 from werkzeug.utils import secure_filename
 
 # Configure logging
@@ -170,6 +171,28 @@ def end_session():
     
     logger.debug(f"Ended session: {session_id}")
     return jsonify({"success": True})
+
+@app.route("/save_top3", methods=["POST"])
+def save_top3():
+    data = request.json
+    session_id = data.get("session_id")
+    svg_data_list = data.get("svg_data_list")
+    if not session_id or not svg_data_list or len(svg_data_list) != 3:
+        return jsonify({"error": "session_id and exactly 3 svg_data_list required"}), 400
+    session_folder = UPLOAD_FOLDER / session_id / "top3"
+    session_folder.mkdir(parents=True, exist_ok=True)
+    filenames = []
+    for i, svg in enumerate(svg_data_list, start=1):
+        filename = f"top3_{i}.svg"
+        file_path = session_folder / filename
+        try:
+            with open(file_path, "w") as f:
+                f.write(svg)
+            filenames.append(filename)
+        except Exception as e:
+            logger.error(f"Error saving top3 image {filename}: {e}")
+            return jsonify({"error": str(e)}), 500
+    return jsonify({"success": True, "filenames": filenames})
 
 @app.route("/download_sketch/<session_id>/<filename>")
 def download_sketch(session_id, filename):

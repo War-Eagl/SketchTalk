@@ -9,8 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@svgdotjs/svg.js@3.0.16/dist/svg.min.js"></script>
     <!-- RecordRTC for audio recording -->
     <script src="https://cdn.jsdelivr.net/npm/recordrtc@5.6.2/RecordRTC.min.js"></script>
-    <!-- Feather icons -->
-    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
         /* Overriding styles for the horizontal layout with left toolbar and right gallery */
         body {
@@ -22,8 +22,8 @@
         .app-container {
             display: flex;
             flex-direction: row;
-            height: 100vh;
-            width: 100vw;
+            height: 100%;
+            width: 100%;
             overflow: hidden;
         }
         
@@ -84,15 +84,16 @@
             display: flex;
             flex-direction: column;
             flex-shrink: 0;
-            overflow-y: auto;
+            height: 100%;
+            overflow: auto;
             order: 2;
         }
         
         .gallery {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
             margin-bottom: 30px;
+            flex: 1 1 auto;
+            overflow-y: auto;
+            min-height: 0;
         }
         
         .gallery-item {
@@ -127,11 +128,10 @@
         
         .session-controls {
             margin-top: auto;
-            padding-top: 20px;
+            padding-top: 16px;
+            background: var(--secondary-color);
             border-top: 1px solid var(--border-color);
-            position: sticky;
-            bottom: 0;
-            background-color: var(--secondary-color);
+            z-index: 1;
         }
         
         /* Mobile responsive adjustments */
@@ -160,6 +160,59 @@
                 border-top: 1px solid var(--border-color);
             }
         }
+        
+        /* New tab styles */
+        .tab-bar {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 10px;
+            background: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 10px 0 8px 0;
+            background: none;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-color-light);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            margin: 0 8px 0 0;
+            outline: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+        .tab-button.active {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--primary-color);
+            background: none;
+            box-shadow: none;
+        }
+        .tab-panel {
+            flex: 1 1 0;
+            min-height: 0;
+            display: none;
+            flex-direction: column;
+            padding-top: 8px;
+        }
+        .tab-panel.active {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 0;
+            min-height: 0;
+        }
+        
+        /* Insert Top 3 selection modal CSS */
+        #top3-modal { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; z-index:10000; }
+        #top3-modal .modal-content { background: white; padding:20px; border-radius:8px; width:80%; max-width:600px; max-height:80%; overflow:auto; display:flex; flex-direction:column; }
+        #top3-modal .modal-gallery { display: flex; flex-wrap: wrap; gap:10px; margin-bottom:20px; }
+        #top3-modal .modal-image-item { flex: 1 1 30%; cursor:pointer; position:relative; border:2px solid transparent; }
+        #top3-modal .modal-image-item.selected { border-color: var(--primary-color); }
+        #top3-modal .modal-image-item svg { width:100%; height:auto; }
     </style>
 </head>
 <body>
@@ -167,25 +220,28 @@
         <!-- Toolbar on the left -->
         <div class="toolbar-container">
             <button id="clear-button" class="tool-button" title="Clear Canvas">
-                <i data-feather="trash-2"></i>
+                <i class="fas fa-trash"></i>
+            </button>
+            <button id="draw-button" class="tool-button active" title="Draw">
+                <i class="fas fa-pencil-alt"></i>
             </button>
             <button id="eraser-button" class="tool-button" title="Eraser">
-                <i data-feather="delete"></i>
+                <i class="fas fa-eraser"></i>
             </button>
             <button id="undo-button" class="tool-button" title="Undo">
-                <i data-feather="corner-up-left"></i>
+                <i class="fas fa-undo"></i>
             </button>
             <button id="redo-button" class="tool-button" title="Redo">
-                <i data-feather="corner-up-right"></i>
+                <i class="fas fa-redo"></i>
             </button>
             <button id="record-button" class="tool-button" title="Record Voice">
-                <i data-feather="mic"></i>
+                <i class="fas fa-microphone"></i>
             </button>
             <button id="save-local-button" class="tool-button" title="Save Locally">
-                <i data-feather="download"></i>
+                <i class="fas fa-download"></i>
             </button>
             <button id="save-server-button" class="tool-button" title="Save to Server">
-                <i data-feather="save"></i>
+                <i class="fas fa-save"></i>
             </button>
         </div>
 
@@ -196,15 +252,21 @@
 
         <!-- Gallery on the right -->
         <div class="gallery-container">
-            <h3 class="section-title">Your Sketches</h3>
-            <div id="gallery-container" class="gallery"></div>
-            
-            <div class="voice-recording">
-                <h3 class="section-title">Voice Description</h3>
-                <p>Describe what you're drawing while you sketch to help AI understand your intentions.</p>
-                <button id="ai-help-button" class="ai-help-button">Get AI Help</button>
+            <div class="tab-bar">
+                <button class="tab-button active" data-tab="gallery-tab">Gallery</button>
+                <button class="tab-button" data-tab="ai-tab">AI Voice</button>
             </div>
-            
+            <div class="tab-panel gallery-tab active">
+                <h3 class="section-title">Your Sketches</h3>
+                <div id="gallery-container" class="gallery"></div>
+            </div>
+            <div class="tab-panel ai-tab">
+                <div class="voice-recording">
+                    <h3 class="section-title">Voice Description</h3>
+                    <p>Describe what you're drawing while you sketch to help AI understand your intentions.</p>
+                    <button id="ai-help-button" class="ai-help-button">Get AI Help</button>
+                </div>
+            </div>
             <div class="session-controls">
                 <button id="end-session-button" class="end-session-button">End Session</button>
             </div>
@@ -214,17 +276,41 @@
     <!-- Status indicator -->
     <div id="status-message" class="status-indicator"></div>
     
+    <!-- Top 3 selection modal -->
+    <div id="top3-modal" class="modal">
+      <div class="modal-content">
+        <h3>Select Top 3 Sketches</h3>
+        <div id="top3-image-container" class="modal-gallery"></div>
+        <div style="text-align:right;">
+          <button id="top3-cancel-button" class="end-session-button">Cancel</button>
+          <button id="top3-submit-button" class="submit-button">Submit Top 3</button>
+        </div>
+      </div>
+    </div>
+    
     <!-- JavaScript -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/lineWidthPopup.css') }}">
+    <script src="{{ url_for('static', filename='js/lineWidthPopup.js') }}"></script>
     <script src="{{ url_for('static', filename='js/drawing.js') }}"></script>
     <script src="{{ url_for('static', filename='js/recording.js') }}"></script>
     <script src="{{ url_for('static', filename='js/gallery.js') }}"></script>
     <script src="{{ url_for('static', filename='js/session.js') }}"></script>
     <script src="{{ url_for('static', filename='js/condition3.js') }}"></script>
     <script>
-        // Initialize Feather icons
-        document.addEventListener('DOMContentLoaded', () => {
-            feather.replace();
+    // Tab switching logic
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabPanels = document.querySelectorAll('.tab-panel');
+        tabButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                tabButtons.forEach(b => b.classList.remove('active'));
+                tabPanels.forEach(panel => panel.style.display = 'none');
+                this.classList.add('active');
+                const target = this.dataset.tab;
+                document.querySelector(`.${target}`).style.display = 'block';
+            });
         });
+    });
     </script>
 </body>
 </html>

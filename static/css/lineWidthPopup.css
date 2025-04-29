@@ -1,0 +1,17 @@
+/* lineWidthPopup.css: Styling for line width popup */
+#line-width-popup {
+  font-family: inherit;
+}
+#line-width-popup button {
+  border: none;
+  background: #1976d2;
+  color: #fff;
+  padding: 6px 18px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.2s;
+}
+#line-width-popup button:hover {
+  background: #1565c0;
+}
